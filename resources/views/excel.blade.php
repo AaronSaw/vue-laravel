@@ -9,55 +9,67 @@
     <title>Excel</title>
 </head>
 <style>
-    #galeria{
+    #galeria {
         display: flex;
     }
-    #galeria img{
+
+    #galeria img {
         width: 85px;
         height: 85px;
         border-radius: 10px;
-        box-shadow: 0 0 8px rgba(0,0,0,0.2);
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
         opacity: 85%;
     }
 </style>
-<body>
-    <a href="{{ route('excel.export') }}" class="btn btn-danger">export</a>
-  <form action="{{ route('excel.store') }}" method="post" enctype="multipart/form-data">
-    @csrf
-    <input type="file" name="image[]" multiple onchange="previewMultiple(event)" id="adicionafoto">
-    <button type="submit" class="btn btn-primary">create</button>
-    <div id="galeria">
-    </div>
-  </form>
 
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th>id</th>
-            <th>image</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach ($hla as $excel)
-        <tr>
-            {{--{ dd($excels) }}--}}
-                <td>{{ $excel->id }}</td>
-                <td><img src="{{ asset('storage/' . $excel->image) }}" alt="" width="50px"></td>
+<body>
+
+    <form action="{{ route('excel.store') }}" method="post" enctype="multipart/form-data">
+        @csrf
+        <input type="file" name="image[]" multiple onchange="previewMultiple(event)" id="adicionafoto">
+        <button type="submit" class="btn btn-primary">create</button>
+        <div id="galeria">
+        </div>
+    </form>
+    {{--export excel --}}
+    <a href="{{ route('excel.export') }}" class="btn btn-danger">export</a>
+
+    {{--download PDF--}}
+    <a href="{{ route('download.pdf') }}" class="btn btn-success">Donload Pdf</a>
+
+    @if ($errors->any())
+        @foreach ($errors->all() as $item)
+            <li class="error">{{ $item }}</li>
+        @endforeach
+    @endif
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>image</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($hla as $excel)
+                <tr>
+                    {{-- { dd($excels) }} --}}
+                    <td>{{ $excel->id }}</td>
+                    <td><img src="{{ asset('storage/' . $excel->image) }}" alt="" width="50px"></td>
             @endforeach
 
-        </tr>
-    </tbody>
-</table>
-<script>
-    function previewMultiple(event){
-        var saida = document.getElementById("adicionafoto");
-        var quantos = saida.files.length;
-        for(i = 0; i < quantos; i++){
-            var urls = URL.createObjectURL(event.target.files[i]);
-            document.getElementById("galeria").innerHTML += '<img src="'+urls+'">';
+            </tr>
+        </tbody>
+    </table>
+    <script>
+        function previewMultiple(event) {
+            var saida = document.getElementById("adicionafoto");
+            var quantos = saida.files.length;
+            for (i = 0; i < quantos; i++) {
+                var urls = URL.createObjectURL(event.target.files[i]);
+                document.getElementById("galeria").innerHTML += '<img src="' + urls + '">';
+            }
         }
-    }
-</script>
+    </script>
 </body>
 
 </html>

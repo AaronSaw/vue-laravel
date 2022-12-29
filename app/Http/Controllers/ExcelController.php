@@ -6,22 +6,16 @@ use App\Exports\UsersExport;
 use App\Imports\UsersImport;
 use App\Models\Excel;
 use App\Models\Product;
-use Maatwebsite\Excel\Classes\PHPExcel_Worksheet_Drawing;
-use PhpOffice\PhpSpreadsheet\Shared\File;
-use PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing;
-use \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Facades\Excel as Fol;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ExcelController extends Controller
 {
     public function index()
     {
         $hla = Excel::all();
-        // return $hla;
         return view('excel', compact('hla'));
     }
 
@@ -48,15 +42,17 @@ class ExcelController extends Controller
         return view('excel');
     }
 
+    //import excel with image
     public function import(Request $request)
     {
-        $spreadsheet =  \PhpOffice\PhpSpreadsheet\IOFactory::load($request->file('excel'));
-        //validation
+        if( Fol::import(new UsersImport, $request->file('excel'))){
+                return redirect()->route('excel.index');
+        }
 
-        //insert image and text to database
-        $worksheet = $spreadsheet->getActiveSheet();
-        $worksheetArray = $worksheet->toArray();
-        if (!empty($worksheetArray)) {
+
+            $spreadsheet =  \PhpOffice\PhpSpreadsheet\IOFactory::load($request->file('excel'));
+            $worksheet = $spreadsheet->getActiveSheet();
+            $worksheetArray = $worksheet->toArray();
             foreach ($worksheetArray as $key => $value) {
                 $worksheet = $spreadsheet->getActiveSheet();
                 $drawing = $worksheet->getDrawingCollection()[$key];
@@ -78,14 +74,24 @@ class ExcelController extends Controller
                     'media_id' => $product->id,
                     'image' => $myFileName,
                 ]);
-            }
-        } else {
-            dd('this file is empty');
+
+
         }
     }
 
+    //export excel with image
     public function export()
     {
         return Fol::download(new UsersExport, 'users.xlsx');
+    }
+
+    //download pdf
+    public function generatePDF()
+    {
+        $datas =Excel::all();
+
+        $pdf =PDF::loadView('pdf/myPdf',compact('datas'));
+
+        return $pdf->download('test.pdf');
     }
 }

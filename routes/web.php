@@ -32,3 +32,6 @@ Route::post('/import',[ExcelController::class,'import'])->name('excel.import');
 
 //laravel export
 Route::get('users/export/', [ExcelController::class, 'export'])->name('excel.export');
+
+//download pdf
+Route::get('generate-pdf', [ExcelController::class, 'generatePDF'])->name('download.pdf');
